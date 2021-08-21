@@ -1,0 +1,182 @@
+<!<!DOCTYPE html>
+<html lan="fr">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+
+date début : {{date_debut}} <br>
+date fin : {{date_fin}}<br>
+
+<!-- DivTable.com -->
+<div class="divTable">
+
+  <div class="divHeadRow">
+    {% for j in range(len_item_wikidata) %}
+    <div class="divTableCell">{{item_wikidata[j]}}</div>
+    {% endfor %}
+  </div>
+
+  {% for i in range(len_wikidata) %}
+    <div class="divRow">
+      {% for j in range(len_item_wikidata) %}
+        {% if j == 0 %}
+        <div class="divTableCell"><a href="https://www.wikidata.org/wiki/{{wikidata[i][j]}}">{{wikidata[i][j]}}</a></div>
+        {% else %}
+        <div class="divTableCell">{{wikidata[i][j]}}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% if (i == len_wikidata-1) or (wikidata[i][0] != wikidata[i+1][0]) %}
+    {% for w in res_saved[i] %}                     {% set count = namespace(value=0) %}                 {# pour afficher une noucelle ligne pour chaque résultat de chaque méthode m #}
+    {% for delta in w %} {% if delta['score'] %}                                                          {# pour ne pas afficher des lignes vides si la méthode ne renvoit pas de résultat avec un score suffisant #}
+      <div class="divRow">
+        <div class="divTableCellMatchID">{% if (i == len_wikidata-1) or (wikidata[i][0] != wikidata[i+1][0]) %} {{wikidata[i][0]}}<br>i = {{i}} / {{len_wikidata-1}}{% endif %}</div>
+        <div class="divTableCellMatchID">{{ delta['name']['first'] }}</div>
+        <div class="divTableCellMatchID">{{ delta['name']['last'] }}</div>
+        <div class="divTableCellMatchID">{{ delta['name']['first'][0] }}</div>
+        <div class="divTableCellMatchID">-</div>
+        <div class="divTableCellMatchID">score : {{ delta['score'] }}</div>
+        <div class="divTableCellMatchID"><style type=\"text/css\"> form, table {display:inline;margin:0px;padding:0px;}</style><form onclick="QS_ajout_ligne('{{wikidata[i][0]}}|P9058|','{{ delta['id'] }}','bouton{{ delta['id'] + wikidata[i][0] }}')"><input type="button" id="bouton{{ delta['id'] + wikidata[i][0] }}" value="{{ delta['id'] }}"></form><style type=\"text/css\"> form, table {display:inline;margin:0px;padding:0px;} </style></div>
+        <div class="divTableCellMatchID"><a href="https://deces.matchid.io/id/{{ delta['id'] }}">www</a></div>
+        {%set compteur = count.value%}
+
+        {% for x in w[compteur] %} {% if "birth" in x %}
+          {% set DOBwiki = wikidata[i][8] %}                                {# 8 correspond à date_de_naissance ; à mettre à jour si item_wikidata change #}
+          {% set DOBmid = w[compteur]["birth"]["date"][-2:] + '/' + w[compteur]["birth"]["date"][4:6] + '/' + w[compteur]["birth"]["date"][:4] %}
+          {% if DOBwiki == DOBmid %}<div class="divTableCellMatchIDvert"><b>{% else %}<div class="divTableCellMatchID">{% endif %}
+            {{DOBmid}}
+          {% if DOBwiki == DOBmid %}</b></div>{% else %}</div>{% endif %}
+        {% endif %} {% endfor %}
+
+        {% for x in w[compteur] %} {% if "birth" in x %}
+          {% set LOBwiki = wikidata[i][9] %}                                {# 9 correspond à lieu_de_naissance ; à mettre à jour si item_wikidata change #}
+          {% set LOBmid = w[compteur]["birth"]["location"]["city"] %}
+          {% if LOBwiki == LOBmid %}<div class="divTableCellMatchIDvert"><b>{% else %}<div class="divTableCellMatchID">{% endif %}
+            {{LOBmid}}
+          {% if LOBwiki == LOBmid %}</b></div>{% else %}</div>{% endif %}
+        {% endif %} {% endfor %}
+
+        {% for x in w[compteur] %} {% if "death" in x %}
+          {% set DODwiki = wikidata[i][10] %}                                {# 10 correspond à date_de_mort ; à mettre à jour si item_wikidata change #}
+          {% set DODmid = w[compteur]["death"]["date"][-2:] + '/' + w[compteur]["death"]["date"][4:6] + '/' + w[compteur]["death"]["date"][:4] %}
+          {% if DODwiki == DODmid %}<div class="divTableCellMatchIDvert"><b>{% else %}<div class="divTableCellMatchID">{% endif %}
+            {{DODmid}}
+          {% if DODwiki == DODmid %}</b></div>{% else %}</div>{% endif %}
+        {% endif %} {% endfor %}
+
+        {% for x in w[compteur] %} {% if "death" in x %}
+          {% set LODwiki = wikidata[i][11] %}                                {# 11 correspond à lieu_de_mort ; à mettre à jour si item_wikidata change #}
+          {% set LODmid = w[compteur]["death"]["location"]["city"] %}
+          {% if LODwiki == LODmid %}<div class="divTableCellMatchIDvert"><b>{% else %}<div class="divTableCellMatchID">{% endif %}
+            {{LODmid}}
+          {% if LODwiki == LODmid %}</b></div>{% else %}</div>{% endif %}
+        {% endif %} {% endfor %}
+
+      </div>
+      {% set count.value = count.value + 1 %}
+    {% endif %}{% endfor %}
+    {% endfor %}
+    {% endif %}
+
+  {% endfor %}
+</div>
+
+<style type="text/css">
+    .divTable
+    {
+        display:  table;
+        width:auto;
+        background-color:blue;
+        border:2px solid  #666666;
+        border-spacing:5px;/*cellspacing:poor IE support for  this*/
+        border-collapse: collapse
+        padding: 45px;
+       /* border-collapse:separate;*/
+    }
+
+    .divHeadRow
+    {
+       display:table-row;
+       width:auto;
+       background-color:grey;
+       border:1px solid  #666666;
+    }
+
+    .divRow
+    {
+       display:table-row;
+       width:auto;
+       background-color:pink;
+       border:1px solid  #666666;
+    }
+
+    .divTableCell
+    {
+        /*float:left         fix for  buggy browsers*/
+        display:table-cell;
+        width:200px;
+        background-color:white;
+        border:1px solid  #666666;
+        /*word-wrap: break-word;*/
+        word-wrap: break-all;
+    }
+
+    .divTableCellMatchID
+    {
+        /*float:left         fix for  buggy browsers*/
+        display:table-cell;
+        width:200px;
+        background-color:orange;
+        border:1px solid  #666666;
+        /*word-wrap: break-word;*/
+        word-wrap: break-all;
+    }
+    .divTableCellMatchIDvert
+    {
+        /*float:left         fix for  buggy browsers*/
+        display:table-cell;
+        width:200px;
+        background-color:green;
+        border:1px solid  #666666;
+        /*word-wrap: break-word;*/
+        word-wrap: break-all;
+    }
+  </style>
+
+</body>
+
+
+<script language="Javascript">
+  function QS_ajout_ligne(champ1,champ2,ID_bouton) {
+    if (document.getElementById(ID_bouton).style.backgroundColor != "green") {
+      var paragraph = document.getElementById("p");
+      var text = document.createTextNode(champ1 + '"' + champ2 + '"');
+      paragraph.appendChild(text);
+      var text = document.createElement("br");
+      paragraph.appendChild(text);
+      document.getElementById(ID_bouton).style.color = "white";
+      document.getElementById(ID_bouton).style.backgroundColor = "green";
+    }
+  }
+</script>
+
+<script language="Javascript">
+  function QS_ajout_ligneDECRET(champ1,champ2,ID_bouton) {
+    if (document.getElementById(ID_bouton).style.backgroundColor != "green") {
+      var paragraph = document.getElementById("p");
+      var text = document.createTextNode(champ1 + '"' + champ2 + '"');
+      paragraph.appendChild(text);
+      var text = document.createElement("br");
+      paragraph.appendChild(text);
+      document.getElementById(ID_bouton).style.color = "white";
+      document.getElementById(ID_bouton).style.backgroundColor = "green";
+    }
+  }
+</script>
+</p>
+<b>Texte à utiliser dans <a href ="https://quickstatements.toolforge.org/#/">QuickStatements</a> pour exporter les nouvelles propriétés <a href="https://www.wikidata.org/wiki/Property:P9058">P9058</a> dans Wikidata :</b>
+<p id="p">
+</p>
+
+</html>
