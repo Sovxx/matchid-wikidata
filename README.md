@@ -20,9 +20,9 @@ Il permet d'afficher sur une copie locale du décret :
 * Lancez le programme avec la commande ``python3 matchid-wikidata``.
 * Renseignez les quelques questions posées.
 * Attendez... (Comptez ~45 minutes pour 500 personnes).
-* Ouvrez out.html :
-** Les lignes blanches sont les personnes déjà listées sur Wikidata et qui n'ont pas encore d'id matchid.
-** Les lignes oranges sont les personnes sur matchid qui peuvent potentiellement correspondre.
+* Ouvrez out.html :<br>
+Les lignes blanches sont les personnes déjà listées sur Wikidata et qui n'ont pas encore d'id matchid.<br>
+Les lignes oranges sont les personnes sur matchid qui peuvent potentiellement correspondre.
 * Si la personne correspond (<b>Attention aux homonymes ! Veillez à avoir un esprit critique</b>), cliquez sur le bouton correspondant. Note : Aucune donnée n'est envoyée à Wikidata.
 * Allez tout en bas du fichier out.html pour récupérer le texte qui sera à importer dans QuickStatements (outil d'import rapide pour Wikidata).
 ---
