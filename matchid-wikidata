@@ -206,13 +206,14 @@ for i in range(len(wikidata)):
             for o in range(min(res['response']['total'],20)):
                 #print ("o:", o)
                 #print ("o:", o, "   score : ", res['response']['persons'][o]['score'])
-                if res['response']['persons'][o]['score'] > score_target:
-                    #print("o:", o," :")
-                    #pprint(res['response']['persons'][o])
-                    res_saved[k][m].append(res['response']['persons'][o])
-                    scored_size = scored_size + 1
-                #else:
-                    #res_saved[k][m].append("score trop bas")
+                if res['response']['persons'][o]['score'] is not None:
+                    if res['response']['persons'][o]['score'] > score_target:
+                        #print("o:", o," :")
+                        #pprint(res['response']['persons'][o])
+                        res_saved[k][m].append(res['response']['persons'][o])
+                        scored_size = scored_size + 1
+                    #else:
+                        #res_saved[k][m].append("score trop bas")
             print("i: ", i,"  k: ", k, "  m:", m, "  scored size :", scored_size)
         k = k + 1
     else:
