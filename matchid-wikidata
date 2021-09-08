@@ -129,8 +129,7 @@ res_saved = []
 
 k = 0
 for i in range(len(wikidata)):
-    print("----- i:", i, " / ", len(wikidata), " (", i/len(wikidata)*100, "%) (ETA: ", gap*nb_methodes*(len(wikidata)-i)/60*1.25 ," min) ----- ", wikidata[i][0], " ", wikidata[i][1])
-    #print("----- i:{0} / {1} ({2:.1f}%) (ETA: {3:.1f} min) ----- {4} {5}".format(i,len(wikidata),i/len(wikidata)*100),gap*nb_methodes*(len(wikidata)-i)/60*1.25,wikidata[i][0],wikidata[i][1])
+    print(f"----- i: {i}  /  {len(wikidata)} ({round(i/len(wikidata)*100,1)}%) (ETA: {round(gap*nb_methodes*(len(wikidata)-i)/60*1.25,1)} min)  -----  {wikidata[i][0]}   {wikidata[i][1]}")
     if 1:# wikidata[i][0] != human_precedent: #pour trouver chaque nouveau human (Qxxxxxxx)
         res_saved.append([])
         #architecture :
