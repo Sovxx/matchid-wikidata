@@ -15,10 +15,10 @@ Si vous voyez qu'il s'agit de la même personne, un bouton permet de préparer u
 
 ### Utilisation
 * Installez Python3 (gratuit).
-* Installez jinja2 (gratuit).
+* Installez les modules ``requests``, ``SPARQLWrapper`` et ``jinja2`` pour Python3 (gratuits).
 * Téléchargez matchid-wikidata (bouton vert "Code" en haut à droite et "Download ZIP") et dézippez-le.
 * Ouvrez un terminal (invite de commande) dans le dossier (Par exemple ``cd C:/xxx/xxx``).
-* Lancez le programme avec la commande ``python3 matchid-wikidata``.
+* Lancez le programme avec la commande ``python3 matchid-wikidata`` (ou éventuellement ``py matchid-wikidata``).
 * Renseignez les quelques questions posées.
 * Attendez... (Comptez ~45 minutes pour 500 personnes).
 * Ouvrez out.html :<br>
