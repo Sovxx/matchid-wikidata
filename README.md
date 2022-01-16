@@ -5,8 +5,8 @@ Import tool from deces.matchid.io list of french deceased persons to Wikidata
 matchid-wikidata est un outil d'importation qui facilite le renseignement des "Fichier des personnes décédées ID" <a href="https://www.wikidata.org/wiki/Property:P9058">P9058</a> du site https://deces.matchid.io sur Wikidata.
 
 Il permet d'afficher :
-* Les personnes françaises existantes sur Wikidata, sans ID P9058, et décédées pendant une période choisie.
-* Les personnes sur https://deces.matchid.io susceptibles de correspondre.
+* Sur fond blanc, les personnes françaises existantes sur Wikidata, sans ID P9058, et décédées pendant une période choisie.
+* Sur fond orange (ou vert), les personnes sur https://deces.matchid.io susceptibles de correspondre.
 Si vous voyez qu'il s'agit de la même personne, un bouton permet de préparer un import rapide dans wikidata.
 <img src="doc/commande.png">
 <a href="doc/html1.png"><img src="doc/html1_400px.png"></a> <a href="doc/html2.png"><img src="doc/html2_400px.png"></a>
