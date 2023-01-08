@@ -200,6 +200,10 @@ for i in range(len(wikidata)):
             r = requests.get(url, params_matrice[m])
             res = r.json()
             #pprint(res)
+            try:
+                print("Message retourné par deces.matchid.io :", res['message'])
+            except:
+                pass
             scored_size = 0
             print("i: ", i,"  k: ", k, "  m:", m,"  response size :", res['response']['total'])
 
