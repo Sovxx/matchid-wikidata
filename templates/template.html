@@ -21,7 +21,7 @@ date fin : {{date_fin}}<br>
     <div class="divRow">
       {% for j in range(len_item_wikidata) %}
         {% if j == 0 %}
-        <div class="divTableCell"><a href="https://www.wikidata.org/wiki/{{wikidata[i][j]}}">{{wikidata[i][j]}}</a></div>
+        <div class="divTableCell"><a href="https://www.wikidata.org/wiki/{{wikidata[i][j]}}" target="_blank">{{wikidata[i][j]}}</a></div>
         {% else %}
         <div class="divTableCell">{{wikidata[i][j]}}</div>
         {% endif %}
@@ -38,7 +38,7 @@ date fin : {{date_fin}}<br>
         <div class="divTableCellMatchID">-</div>
         <div class="divTableCellMatchID">score : {{ delta['score'] }}</div>
         <div class="divTableCellMatchID"><style type=\"text/css\"> form, table {display:inline;margin:0px;padding:0px;}</style><form onclick="QS_ajout_ligne('{{wikidata[i][0]}}|P9058|','{{ delta['id'] }}','bouton{{ delta['id'] + wikidata[i][0] }}')"><input type="button" id="bouton{{ delta['id'] + wikidata[i][0] }}" value="{{ delta['id'] }}"></form><style type=\"text/css\"> form, table {display:inline;margin:0px;padding:0px;} </style></div>
-        <div class="divTableCellMatchID"><a href="https://deces.matchid.io/id/{{ delta['id'] }}">www</a></div>
+        <div class="divTableCellMatchID"><a href="https://deces.matchid.io/id/{{ delta['id'] }}" target="_blank">www</a></div>
         {%set compteur = count.value%}
 
         {% for x in w[compteur] %} {% if "birth" in x %}
@@ -175,7 +175,7 @@ date fin : {{date_fin}}<br>
   }
 </script>
 </p>
-<b>Texte à utiliser dans <a href ="https://quickstatements.toolforge.org/#/">QuickStatements</a> pour exporter les nouvelles propriétés <a href="https://www.wikidata.org/wiki/Property:P9058">P9058</a> dans Wikidata :</b>
+<b>Texte à utiliser dans <a href ="https://quickstatements.toolforge.org/#/" target="_blank">QuickStatements</a> pour exporter les nouvelles propriétés <a href="https://www.wikidata.org/wiki/Property:P9058" target="_blank">P9058</a> dans Wikidata :</b>
 <p id="p">
 </p>
 
