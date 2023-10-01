@@ -29,6 +29,14 @@ date_debut = input("Date (incluse) de début ? (ex: 1970-01-01) : ")
 if (len(date_debut) != 10): raise SystemExit("Erreur : Renseigner une date de début de recherche")
 date_fin = input("Date (non incluse) de fin ? (ex: 1970-02-01) : ")
 if (len(date_fin) != 10): raise SystemExit("Erreur : Renseigner une date de fin de recherche")
+try:
+    with open("apikey.txt", 'r') as fichier:
+        apikey = fichier.read()
+        apikey = apikey.strip() # pour retirer les \n de retour ligne
+        print("API Key trouvée dans apikey.txt:", apikey)
+except:
+    print("Pas de fichier apikey.txt contenant la clé API (vous pouvez en obtenir une sur le site deces.matchid.io) trouvé")
+    apikey = input("Renseignez manuellement l'API Key si vous en avez une (laisser vide sinon, mais le nombre de demandes va être limité) : ")
 
 endpoint_url = "https://query.wikidata.org/sparql"
 
@@ -196,8 +204,10 @@ for i in range(len(wikidata)):
             print("i: ", i,"  k: ", k, "  m:", m)
             res_saved[k].append([])
             time.sleep(gap) #pour ne pas dépasser la limite d'une requête par seconde
-            params_matrice[m]
-            r = requests.get(url, params_matrice[m])
+            if apikey:
+                r = requests.get(url, params=params_matrice[m], headers={'Authorization': 'Bearer '+apikey})
+            else:
+                r = requests.get(url, params=params_matrice[m])
             res = r.json()
             #pprint(res)
             try:
