@@ -109,26 +109,35 @@ item_wikidata = ["human",\
 
 for i in range(len(results["results"]["bindings"])):
     print("----- i: ", i," -----")
-    wikidata.append([])  # Pour passer à 2 dimensions à la position i
+    wikidata.append([]) #pour passer à 2 dimensions à la position i
     for j in range(len(item_wikidata)):
         try:
-            if item_wikidata[j] == "date_de_naissance" or item_wikidata[j] == "date_de_mort":
-                date_value = results["results"]["bindings"][i][item_wikidata[j]]["value"][:10]
-                precision_value = results["results"]["bindings"][i]["precision_" + item_wikidata[j]]["value"]
-                d = date.fromisoformat(date_value)
-                date_value = d.strftime("%d/%m/%Y")
-                wikidata[i].extend([date_value, precision_value])  # Ajout de la date et de la précision
-            else:
-                wikidata[i].append(results["results"]["bindings"][i][item_wikidata[j]]["value"])
-                if item_wikidata[j] == "human":
-                    wikidata[i][j] = wikidata[i][j][31:]  # Pour enlever "http://www.wikidata.org/entity/" de "http://www.wikidata.org/entity/Q55740039"
-                if item_wikidata[j] == "date_de_naissance" or item_wikidata[j] == "date_de_mort":
-                    wikidata[i][j] = wikidata[i][j][:10]  # Pour garder "2010-02-02" dans "2010-02-02T00:00:00Z"
-                    d = date.fromisoformat(wikidata[i][j])
-                    wikidata[i][j] = d.strftime("%d/%m/%Y")  # Pour passer à JJ/MM/AAAA
+            wikidata[i].append(results["results"]["bindings"][i][item_wikidata[j]]["value"])
+
+            if item_wikidata[j] == "human":
+                wikidata[i][j] = wikidata[i][j][31:] #pour enlever "http://www.wikidata.org/entity/" de "http://www.wikidata.org/entity/Q55740039"
+
+            if item_wikidata[j] == "date_de_naissance":
+                wikidata[i][j] = wikidata[i][j][:10] #pour garder "2010-02-02" dans "2010-02-02T00:00:00Z"
+                d = date.fromisoformat(wikidata[i][j])
+                wikidata[i][j] = d.strftime("%d/%m/%Y") #pour passer à JJ/MM/AAAA
+                if results["results"]["bindings"][i]["precision_de_naissance"]["value"] == "10" :
+                    wikidata[i][j] = d.strftime("%m/%Y") #pour passer à MM/AAAA
+                if results["results"]["bindings"][i]["precision_de_naissance"]["value"] == "9" :
+                    wikidata[i][j] = d.strftime("%Y") #pour passer à AAAA
+
+            if item_wikidata[j] == "date_de_mort":
+                wikidata[i][j] = wikidata[i][j][:10] #pour garder "2010-02-02" dans "2010-02-02T00:00:00Z"
+                d = date.fromisoformat(wikidata[i][j])
+                wikidata[i][j] = d.strftime("%d/%m/%Y") #pour passer à JJ/MM/AAAA
+                if results["results"]["bindings"][i]["precision_de_mort"]["value"] == "10" :
+                    wikidata[i][j] = d.strftime("%m/%Y") #pour passer à MM/AAAA
+                if results["results"]["bindings"][i]["precision_de_mort"]["value"] == "9" :
+                    wikidata[i][j] = d.strftime("%Y") #pour passer à AAAA
+
         except KeyError:
-            wikidata[i].extend(["", ""])  # Ajout de valeurs vides pour la date et la précision
-        print("i: ", i, "  j:", j, "  ", item_wikidata[j], (30-len(item_wikidata[j])-len(str(i))-len(str(j)))*" "," : ", wikidata[i][j])
+            wikidata[i].append("")
+        print("i: ", i, "  j:", j, "  ",item_wikidata[j],(30-len(item_wikidata[j])-len(str(i))-len(str(j)))*" "," : ", wikidata[i][j])
 
 print("-------------------------------")
 print("DONNEES RECUPEREES SUR WIKIDATA")
