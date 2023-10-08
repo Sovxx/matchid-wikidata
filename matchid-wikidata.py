@@ -40,12 +40,12 @@ except:
 
 endpoint_url = "https://query.wikidata.org/sparql"
 
-query = """SELECT ?human ?humanLabel ?nom_de_familleLabel ?prenomLabel ?prenoms_num ?prenomsLabel ?nom_de_naissance ?pseudo ?date_de_naissance ?lieu_de_naissanceLabel ?date_de_mort ?lieu_de_mortLabel WHERE {
+query = """SELECT ?human ?humanLabel ?nom_de_familleLabel ?prenomLabel ?prenoms_num ?prenomsLabel ?nom_de_naissance ?pseudo ?date_de_naissance ?precision_de_naissance ?lieu_de_naissanceLabel ?date_de_mort ?precision_de_mort ?lieu_de_mortLabel WHERE {
   ?human wdt:P31 wd:Q5.
   MINUS { ?human wdt:P9058 _:b8. }
   ?human wdt:P27 wd:Q142;
     (p:P570/psv:P570) _:b9.
-  _:b9 wikibase:timePrecision ?precision;
+  _:b9 wikibase:timePrecision ?precision_de_mort;
     wikibase:timeValue ?date_de_mort.
   BIND(CONCAT(STR(YEAR(?date_de_mort)), "-", STR(MONTH(?date_de_mort))) AS ?yearmonth)
   FILTER(?date_de_mort >= """ + "\"" + date_debut + """T00:00:00"^^xsd:dateTime)
@@ -57,7 +57,10 @@ query = """SELECT ?human ?humanLabel ?nom_de_familleLabel ?prenomLabel ?prenoms_
   OPTIONAL { ?human p:P735 [pq:P1545 ?prenoms_num;
                             ps:P735 ?prenoms;
                            ]. }
-  OPTIONAL { ?human wdt:P569 ?date_de_naissance. }
+  OPTIONAL { ?human wdt:P569 ?date_de_naissance.
+             ?human p:P569/psv:P569 ?date_de_naissance_node.
+             ?date_de_naissance_node wikibase:timePrecision ?precision_de_naissance.
+           }
   OPTIONAL { ?human wdt:P19 ?lieu_de_naissance. }
   OPTIONAL { ?human wdt:P20 ?lieu_de_mort. }
   OPTIONAL { ?human wdt:P1477 ?nom_de_naissance. }
@@ -98,25 +101,35 @@ item_wikidata = ["human",\
 "nom_de_naissance",\
 "pseudo",\
 "date_de_naissance",\
+"precision_de_naissance",\
 "lieu_de_naissanceLabel",\
 "date_de_mort",\
+"precision_de_mort",\
 "lieu_de_mortLabel"]
 
 for i in range(len(results["results"]["bindings"])):
     print("----- i: ", i," -----")
-    wikidata.append([]) #pour passer à 2 dimensions à la position i
+    wikidata.append([])  # Pour passer à 2 dimensions à la position i
     for j in range(len(item_wikidata)):
         try:
-            wikidata[i].append(results["results"]["bindings"][i][item_wikidata[j]]["value"])
-            if item_wikidata[j] == "human":
-                wikidata[i][j] = wikidata[i][j][31:] #pour enlever "http://www.wikidata.org/entity/" de "http://www.wikidata.org/entity/Q55740039"
             if item_wikidata[j] == "date_de_naissance" or item_wikidata[j] == "date_de_mort":
-                wikidata[i][j] = wikidata[i][j][:10] #pour garder "2010-02-02" dans "2010-02-02T00:00:00Z"
-                d = date.fromisoformat(wikidata[i][j])
-                wikidata[i][j] = d.strftime("%d/%m/%Y") #pour passer à JJ/MM/AAAA
+                date_value = results["results"]["bindings"][i][item_wikidata[j]]["value"][:10]
+                precision_value = results["results"]["bindings"][i]["precision_" + item_wikidata[j]]["value"]
+                d = date.fromisoformat(date_value)
+                date_value = d.strftime("%d/%m/%Y")
+                wikidata[i].extend([date_value, precision_value])  # Ajout de la date et de la précision
+            else:
+                wikidata[i].append(results["results"]["bindings"][i][item_wikidata[j]]["value"])
+                if item_wikidata[j] == "human":
+                    wikidata[i][j] = wikidata[i][j][31:]  # Pour enlever "http://www.wikidata.org/entity/" de "http://www.wikidata.org/entity/Q55740039"
+                if item_wikidata[j] == "date_de_naissance" or item_wikidata[j] == "date_de_mort":
+                    wikidata[i][j] = wikidata[i][j][:10]  # Pour garder "2010-02-02" dans "2010-02-02T00:00:00Z"
+                    d = date.fromisoformat(wikidata[i][j])
+                    wikidata[i][j] = d.strftime("%d/%m/%Y")  # Pour passer à JJ/MM/AAAA
         except KeyError:
-            wikidata[i].append("")
-        print("i: ", i, "  j:", j, "  ",item_wikidata[j],(30-len(item_wikidata[j])-len(str(i))-len(str(j)))*" "," : ", wikidata[i][j])
+            wikidata[i].extend(["", ""])  # Ajout de valeurs vides pour la date et la précision
+        print("i: ", i, "  j:", j, "  ", item_wikidata[j], (30-len(item_wikidata[j])-len(str(i))-len(str(j)))*" "," : ", wikidata[i][j])
+
 print("-------------------------------")
 print("DONNEES RECUPEREES SUR WIKIDATA")
 print("-------------------------------")
@@ -162,9 +175,9 @@ for i in range(len(wikidata)):
         {
             'lastName': wikidata[i][1],
             'birthDate': wikidata[i][8],
-            'birthCity': wikidata[i][9],
-            'deathDate': wikidata[i][10],
-            'deathCity': wikidata[i][11],
+            'birthCity': wikidata[i][10],
+            'deathDate': wikidata[i][11],
+            'deathCity': wikidata[i][13],
             'size': 20 #sinon, par défaut, seuls 20 résultats sont affichés, alors que le programme va essayer de tous les afficher !
         },
         #NomFamille Prenom DOB LOB DOD LOD
@@ -172,9 +185,9 @@ for i in range(len(wikidata)):
             'lastName': wikidata[i][2],
             'firstName': wikidata[i][3],
             'birthDate': wikidata[i][8],
-            'birthCity': wikidata[i][9],
-            'deathDate': wikidata[i][10],
-            'deathCity': wikidata[i][11],
+            'birthCity': wikidata[i][10],
+            'deathDate': wikidata[i][11],
+            'deathCity': wikidata[i][13],
             'size': 20 #sinon, par défaut, seuls 20 résultats sont affichés, alors que le programme va essayer de tous les afficher !
         },
         #NomFamille Prenoms DOB LOB DOD LOD
@@ -190,7 +203,7 @@ for i in range(len(wikidata)):
         {
             'lastName': wikidata[i][2],
             'firstName': wikidata[i][3],
-            'deathDate': wikidata[i][10][-4:],
+            'deathDate': wikidata[i][11][-4:],
             'size': 20 #sinon, par défaut, seuls 20 résultats sont affichés, alors que le programme va essayer de tous les afficher !
         #NomFamille Prenoms YOD
         #NomNaissance YOD
@@ -209,6 +222,8 @@ for i in range(len(wikidata)):
             else:
                 r = requests.get(url, params=params_matrice[m])
             res = r.json()
+            pprint(wikidata[i])
+            pprint(params_matrice[m])
             #pprint(res)
             try:
                 print("Message retourné par deces.matchid.io :", res['message'])
