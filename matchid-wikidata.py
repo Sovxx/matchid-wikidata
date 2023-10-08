@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 # pip install sparqlwrapper
-# pip install Jinja2
 # https://rdflib.github.io/sparqlwrapper/
 
 import requests
