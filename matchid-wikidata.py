@@ -25,18 +25,32 @@ env = Environment(loader=fileLoader)
 
 score_target = 0.1
 
-date_debut = input("Date (incluse) de début ? (ex: 1970-01-01) : ")
-if (len(date_debut) != 10): raise SystemExit("Erreur : Renseigner une date de début de recherche")
-date_fin = input("Date (non incluse) de fin ? (ex: 1970-02-01) : ")
-if (len(date_fin) != 10): raise SystemExit("Erreur : Renseigner une date de fin de recherche")
 try:
-    with open("apikey.txt", 'r') as fichier:
-        apikey = fichier.read()
-        apikey = apikey.strip() # pour retirer les \n de retour ligne
-        print("API Key trouvée dans apikey.txt:", apikey)
+    date_debut = sys.argv[1]
+    print(date_debut)
 except:
-    print("Pas de fichier apikey.txt contenant la clé API (vous pouvez en obtenir une sur le site deces.matchid.io) trouvé")
-    apikey = input("Renseignez manuellement l'API Key si vous en avez une (laisser vide sinon, mais le nombre de demandes va être limité) : ")
+    date_debut = input("Date (incluse) de début ? (ex: 1970-01-01) : ")
+    if (len(date_debut) != 10): raise SystemExit("Erreur : Renseigner une date de début de recherche")
+
+try:
+    date_fin = sys.argv[2]
+    print(date_fin)
+except:
+    date_fin = input("Date (incluse) de début ? (ex: 1970-01-01) : ")
+    if (len(date_fin) != 10): raise SystemExit("Erreur : Renseigner une date de début de recherche")
+
+try:
+    apikey = sys.argv[3]
+    print(apikey)
+except:
+    try:
+        with open("apikey.txt", 'r') as fichier:
+            apikey = fichier.read()
+            apikey = apikey.strip() # pour retirer les \n de retour ligne
+            print("API Key trouvée dans apikey.txt:", apikey)
+    except:
+        print("Pas de fichier apikey.txt contenant la clé API (vous pouvez en obtenir une sur le site deces.matchid.io) trouvé")
+        apikey = input("Renseignez manuellement l'API Key si vous en avez une (laisser vide sinon, mais le nombre de demandes va être limité) : ")
 
 endpoint_url = "https://query.wikidata.org/sparql"
 
@@ -101,10 +115,8 @@ item_wikidata = ["human",\
 "nom_de_naissance",\
 "pseudo",\
 "date_de_naissance",\
-"precision_de_naissance",\
 "lieu_de_naissanceLabel",\
 "date_de_mort",\
-"precision_de_mort",\
 "lieu_de_mortLabel"]
 
 for i in range(len(results["results"]["bindings"])):
@@ -121,8 +133,8 @@ for i in range(len(results["results"]["bindings"])):
                 wikidata[i][j] = wikidata[i][j][:10] #pour garder "2010-02-02" dans "2010-02-02T00:00:00Z"
                 d = date.fromisoformat(wikidata[i][j])
                 wikidata[i][j] = d.strftime("%d/%m/%Y") #pour passer à JJ/MM/AAAA
-                if results["results"]["bindings"][i]["precision_de_naissance"]["value"] == "10" :
-                    wikidata[i][j] = d.strftime("%m/%Y") #pour passer à MM/AAAA
+                if results["results"]["bindings"][i]["precision_de_naissance"]["value"] in {"7","8"}: # précision = siècle ou décennie
+                    wikidata[i][j] = ""
                 if results["results"]["bindings"][i]["precision_de_naissance"]["value"] == "9" :
                     wikidata[i][j] = d.strftime("%Y") #pour passer à AAAA
 
@@ -130,8 +142,8 @@ for i in range(len(results["results"]["bindings"])):
                 wikidata[i][j] = wikidata[i][j][:10] #pour garder "2010-02-02" dans "2010-02-02T00:00:00Z"
                 d = date.fromisoformat(wikidata[i][j])
                 wikidata[i][j] = d.strftime("%d/%m/%Y") #pour passer à JJ/MM/AAAA
-                if results["results"]["bindings"][i]["precision_de_mort"]["value"] == "10" :
-                    wikidata[i][j] = d.strftime("%m/%Y") #pour passer à MM/AAAA
+                if results["results"]["bindings"][i]["precision_de_mort"]["value"] in {"7","8"}: # précision = siècle ou décennie
+                    wikidata[i][j] = ""
                 if results["results"]["bindings"][i]["precision_de_mort"]["value"] == "9" :
                     wikidata[i][j] = d.strftime("%Y") #pour passer à AAAA
 
@@ -160,20 +172,10 @@ res_saved = []
 k = 0
 for i in range(len(wikidata)):
     print(f"----- i: {i}  /  {len(wikidata)} ({round(i/len(wikidata)*100,1)}%) (ETA: {round(gap*nb_methodes*(len(wikidata)-i)/60*1.25,1)} min)  -----  {wikidata[i][0]}   {wikidata[i][1]}")
+    pprint(wikidata[i])
     if 1:# wikidata[i][0] != human_precedent: #pour trouver chaque nouveau human (Qxxxxxxx)
         res_saved.append([])
-        #architecture :
-        #  personne_a_chercher[ ][0] : Nom
-        #  personne_a_chercher[ ][1] : NomFamille
-        #  personne_a_chercher[ ][2] : NomNaissance
-        #  personne_a_chercher[ ][3] : Pseudo
-        #  personne_a_chercher[ ][4] : Prenom
-        #  personne_a_chercher[ ][5] : Prenoms
-        #  personne_a_chercher[ ][6] : DOB
-        #  personne_a_chercher[ ][7] : LOB
-        #  personne_a_chercher[ ][8] : DOD
-        #  personne_a_chercher[ ][9] : LOD
-        #matrice :
+
         params_matrice = [\
         #Nom DOD
         {
@@ -184,9 +186,9 @@ for i in range(len(wikidata)):
         {
             'lastName': wikidata[i][1],
             'birthDate': wikidata[i][8],
-            'birthCity': wikidata[i][10],
-            'deathDate': wikidata[i][11],
-            'deathCity': wikidata[i][13],
+            'birthCity': wikidata[i][9],
+            'deathDate': wikidata[i][10],
+            'deathCity': wikidata[i][11],
             'size': 20 #sinon, par défaut, seuls 20 résultats sont affichés, alors que le programme va essayer de tous les afficher !
         },
         #NomFamille Prenom DOB LOB DOD LOD
@@ -194,9 +196,9 @@ for i in range(len(wikidata)):
             'lastName': wikidata[i][2],
             'firstName': wikidata[i][3],
             'birthDate': wikidata[i][8],
-            'birthCity': wikidata[i][10],
-            'deathDate': wikidata[i][11],
-            'deathCity': wikidata[i][13],
+            'birthCity': wikidata[i][9],
+            'deathDate': wikidata[i][10],
+            'deathCity': wikidata[i][11],
             'size': 20 #sinon, par défaut, seuls 20 résultats sont affichés, alors que le programme va essayer de tous les afficher !
         },
         #NomFamille Prenoms DOB LOB DOD LOD
@@ -212,7 +214,7 @@ for i in range(len(wikidata)):
         {
             'lastName': wikidata[i][2],
             'firstName': wikidata[i][3],
-            'deathDate': wikidata[i][11][-4:],
+            'deathDate': wikidata[i][10][-4:],
             'size': 20 #sinon, par défaut, seuls 20 résultats sont affichés, alors que le programme va essayer de tous les afficher !
         #NomFamille Prenoms YOD
         #NomNaissance YOD
@@ -224,6 +226,7 @@ for i in range(len(wikidata)):
         }]
         for m in range(len(params_matrice)): #balaye chaque ligne de la matrice
             print("i: ", i,"  k: ", k, "  m:", m)
+            pprint(params_matrice[m])
             res_saved[k].append([])
             time.sleep(gap) #pour ne pas dépasser la limite d'une requête par seconde
             if apikey:
@@ -231,16 +234,21 @@ for i in range(len(wikidata)):
             else:
                 r = requests.get(url, params=params_matrice[m])
             res = r.json()
-            pprint(wikidata[i])
-            pprint(params_matrice[m])
             #pprint(res)
             try:
-                print("Message retourné par deces.matchid.io :", res['message'])
+                print("PROBLEME DE REPONSE =========================================== Message retourné par deces.matchid.io :", res['message'])
+            except:
+                pass
+            try:
+                print("PROBLEME DE REPONSE =========================================== Message retourné par deces.matchid.io :", res['msg'])
             except:
                 pass
             scored_size = 0
-            print("i: ", i,"  k: ", k, "  m:", m,"  response size :", res['response']['total'])
-
+            try:
+                print("i: ", i,"  k: ", k, "  m:", m,"  response size :", res['response']['total'])
+            except:
+                print("PROBLEME DE REPONSE ===========================================")
+                pprint(res)
             for o in range(min(res['response']['total'],20)):
                 #print ("o:", o)
                 #print ("o:", o, "   score : ", res['response']['persons'][o]['score'])
