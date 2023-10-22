@@ -26,21 +26,21 @@ score_target = 0.1
 
 try:
     date_debut = sys.argv[1]
-    print(date_debut)
+    print("Date (incluse) de début :", date_debut)
 except:
     date_debut = input("Date (incluse) de début ? (ex: 1970-01-01) : ")
     if (len(date_debut) != 10): raise SystemExit("Erreur : Renseigner une date de début de recherche")
 
 try:
     date_fin = sys.argv[2]
-    print(date_fin)
+    print("Date (non incluse) de fin :", date_fin)
 except:
-    date_fin = input("Date (incluse) de début ? (ex: 1970-01-01) : ")
-    if (len(date_fin) != 10): raise SystemExit("Erreur : Renseigner une date de début de recherche")
+    date_fin = input("Date (non incluse) de fin ? (ex: 1970-02-01) : ")
+    if (len(date_fin) != 10): raise SystemExit("Erreur : Renseigner une date de fin de recherche")
 
 try:
     apikey = sys.argv[3]
-    print(apikey)
+    print("apikey :", apikey)
 except:
     try:
         with open("apikey.txt", 'r') as fichier:
@@ -260,6 +260,13 @@ for i in range(len(wikidata)):
                     #else:
                         #res_saved[k][m].append("score trop bas")
             print("i: ", i,"  k: ", k, "  m:", m, "  scored size :", scored_size)
+
+            if scored_size == 0:        # si score 0 mais qu'il y a eu des réponses, on retourne la 1ère quand même
+                for o in range(min(res['response']['total'],1)):
+                    if res['response']['persons'][o]['score'] is not None:
+                        res['response']['persons'][o]['score'] = 0.001   # on gonfle un peu le score, sinon le template jinja va masquer la ligne
+                        res_saved[k][m].append(res['response']['persons'][o])
+                        print("i: ", i,"  k: ", k, "  m:", m, "  on affiche quand même le 1er résultat avec un score 0.001")
         k = k + 1
     else:
         print("Qxxxxxx identique au i précédent. Passage au suivant.")
