@@ -248,25 +248,28 @@ for i in range(len(wikidata)):
             except:
                 print("PROBLEME DE REPONSE ===========================================")
                 pprint(res)
-            for o in range(min(res['response']['total'],20)):
-                #print ("o:", o)
-                #print ("o:", o, "   score : ", res['response']['persons'][o]['score'])
-                if res['response']['persons'][o]['score'] is not None:
-                    if res['response']['persons'][o]['score'] > score_target:
-                        #print("o:", o," :")
-                        #pprint(res['response']['persons'][o])
-                        res_saved[k][m].append(res['response']['persons'][o])
-                        scored_size = scored_size + 1
-                    #else:
-                        #res_saved[k][m].append("score trop bas")
-            print("i: ", i,"  k: ", k, "  m:", m, "  scored size :", scored_size)
 
-            if scored_size == 0:        # si score 0 mais qu'il y a eu des réponses, on retourne la 1ère quand même
-                for o in range(min(res['response']['total'],1)):
-                    if res['response']['persons'][o]['score'] is not None:
-                        res['response']['persons'][o]['score'] = 0.001   # on gonfle un peu le score, sinon le template jinja va masquer la ligne
-                        res_saved[k][m].append(res['response']['persons'][o])
-                        print("i: ", i,"  k: ", k, "  m:", m, "  on affiche quand même le 1er résultat avec un score 0.001")
+            response_data = res.get('response')
+            if response_data is not None:
+                for o in range(min(response_data['total'],20)):
+                    #print ("o:", o)
+                    #print ("o:", o, "   score : ", res['response']['persons'][o]['score'])
+                    if response_data['persons'][o]['score'] is not None:
+                        if response_data['persons'][o]['score'] > score_target:
+                            #print("o:", o," :")
+                            #pprint(res['response']['persons'][o])
+                            res_saved[k][m].append(response_data['persons'][o])
+                            scored_size = scored_size + 1
+                        #else:
+                            #res_saved[k][m].append("score trop bas")
+                print("i: ", i,"  k: ", k, "  m:", m, "  scored size :", scored_size)
+
+                if scored_size == 0:        # si score 0 mais qu'il y a eu des réponses, on retourne la 1ère quand même
+                    for o in range(min(response_data['total'],1)):
+                        if response_data['persons'][o]['score'] is not None:
+                            response_data['persons'][o]['score'] = 0.001   # on gonfle un peu le score, sinon le template jinja va masquer la ligne
+                            res_saved[k][m].append(response_data['persons'][o])
+                            print("i: ", i,"  k: ", k, "  m:", m, "  on affiche quand même le 1er résultat avec un score 0.001")
         k = k + 1
     else:
         print("Qxxxxxx identique au i précédent. Passage au suivant.")
